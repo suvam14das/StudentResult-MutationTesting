@@ -91,11 +91,13 @@ public class MarksService {
             User user = userService.getUserByExtId(marksVO1.getRollNo());
             Subject subject = subjectRepository.findBySubCode(marksVO1.getSubjectCode());
             Marks mark = repository.findByUserAndSubjectAndTermAndYear(user, subject, marksVO1.getTerm(), marksVO1.getYear());
+            if(Operation.UPDATE.getName().equals(operationType)) {
+                MarksVO temp = performUpdate(mark, marksVO1, subject);
+                marksVOList.add(temp);
+            }
+            else
             if(Operation.DELETE.getName().equals(operationType)) {
                 MarksVO temp = performSoftDelete(mark, marksVO1, subject);
-                marksVOList.add(temp);
-            }else if(Operation.UPDATE.getName().equals(operationType)) {
-                MarksVO temp = performUpdate(mark, marksVO1, subject);
                 marksVOList.add(temp);
             }
         }
@@ -122,6 +124,4 @@ public class MarksService {
                 mark.getStatus());
         return temp;
     }
-
-
 }
