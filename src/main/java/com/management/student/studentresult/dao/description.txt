@@ -1,0 +1,3 @@
+This is package contains all DAO classes.
+
+Note : Motive of this file is to make the dao package register for git push.
