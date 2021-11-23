@@ -43,7 +43,22 @@ public class MarksServiceTest {
 
     @Test
     public void updateMarksTest() throws ParseException {
-        //term = 1, year = 2021, subjectCode = A101, rollNo = MT2020011
+
+        Marks marks = marksRepository.findAll().get(0);
+        MarksVO marksVO = new MarksVO(marks.getUser().getExtId(),marks.getSubject().getSubCode(),marks.getSubject().getName(),marks.getYear(),marks.getTerm(), marks.getTotScore(), marks.getScore(), marks.getGrade());
+        marksVO.setMarksObtained(91.0);
+        marksVO.setGrade("A+");
+        marksVO.setTotalMarks(150);
+        marksVO.setOperation("UPDATE");
+        List<MarksVO> marksVOList = new ArrayList<MarksVO>();
+        marksVOList.add(marksVO);
+
+        assertNotEquals(Collections.emptyList(), marksService.updateMarksQueryResult(marksVOList));
+
+    }
+
+    @Test
+    public void performUpdateTest() throws ParseException {
         Marks marks = marksRepository.findAll().get(0);
         MarksVO marksVO = new MarksVO(marks.getUser().getExtId(),marks.getSubject().getSubCode(),marks.getSubject().getName(),marks.getYear(),marks.getTerm(), marks.getTotScore(), marks.getScore(), marks.getGrade());
         marksVO.setMarksObtained(91.0);
@@ -51,14 +66,11 @@ public class MarksServiceTest {
         marksVO.setTotalMarks(150);
         marksVO.setOperation("UPDATE");
         MarksVO marksVOUpdated = marksService.performUpdate(marks,marksVO,marks.getSubject());
+
         assertNotEquals(null, marksVOUpdated);
         assertEquals(marksVO.getGrade(), marksVOUpdated.getGrade());
         assertEquals(marksVO.getMarksObtained(), marksVOUpdated.getMarksObtained());
         assertEquals(marksVO.getTotalMarks(), marksVOUpdated.getTotalMarks());
-        List<MarksVO> marksVOList = new ArrayList<MarksVO>();
-        marksVOList.add(marksVO);
-        assertNotEquals(Collections.emptyList(), marksService.updateMarksQueryResult(marksVOList));
-
     }
 
     @Test
@@ -66,11 +78,18 @@ public class MarksServiceTest {
 
         Marks marks = marksRepository.findAll().get(0);
         MarksVO marksVO = new MarksVO(marks.getUser().getExtId(),marks.getSubject().getSubCode(),marks.getSubject().getName(),marks.getYear(),marks.getTerm(), marks.getTotScore(), marks.getScore(), marks.getGrade());
-        assertNotEquals(null, marksService.performSoftDelete(marks, marksVO, marks.getSubject()));
-        assertEquals("INACTIVE", marks.getStatus());
         marksVO.setOperation("DELETE");
         List<MarksVO> marksVOList = new ArrayList<MarksVO>();
         marksVOList.add(marksVO);
+
         assertNotEquals(Collections.emptyList(), marksService.updateMarksQueryResult(marksVOList));
+    }
+
+    @Test
+    public void performSoftDeleteTest() throws ParseException {
+        Marks marks = marksRepository.findAll().get(0);
+        MarksVO marksVO = new MarksVO(marks.getUser().getExtId(),marks.getSubject().getSubCode(),marks.getSubject().getName(),marks.getYear(),marks.getTerm(), marks.getTotScore(), marks.getScore(), marks.getGrade());
+        assertNotEquals(null, marksService.performSoftDelete(marks, marksVO, marks.getSubject()));
+        assertEquals("INACTIVE", marks.getStatus());
     }
 }

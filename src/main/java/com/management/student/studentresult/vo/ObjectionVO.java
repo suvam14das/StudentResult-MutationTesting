@@ -9,7 +9,7 @@ public class ObjectionVO extends MarksVO {
         
     }
     
-    ObjectionVO(String rollNo, String subjectCode, String subjectName, int year, int term,
+    public ObjectionVO(String rollNo, String subjectCode, String subjectName, int year, int term,
                 int totalMarks, Double marksObtained, String comments, String operation, String grade) {
         super(rollNo, subjectCode, subjectName, year, term, totalMarks, marksObtained, grade);
             this.comments = comments;

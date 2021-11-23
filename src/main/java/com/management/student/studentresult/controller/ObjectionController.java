@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,27 +35,33 @@ public class ObjectionController {
     private ObjectionService objectionService;
 
     @RequestMapping(value = "/raiseObjection", method = RequestMethod.POST)
-    public ResponseEntity<?> studentRaiseObjection(@RequestBody List<MarksVO> marksVO) {
-        List<Objection> objection;
+    public ResponseEntity<?> studentRaiseObjection(@RequestBody List<MarksVO> marksVOList) {
+        List<Objection> objectionList = new ArrayList<>();
         try {
-            objection = objectionService.raiseObjection(marksVO);
+            for(MarksVO marksVO : marksVOList) {
+            Objection objection = objectionService.raiseObjection(marksVO);
+            objectionList.add(objection);
+            }
         } catch (Exception ex) {
             String res = ex.getMessage();
             return new ResponseEntity<String>(res, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<List<Objection>>(objection, HttpStatus.OK);
+        return new ResponseEntity<List<Objection>>(objectionList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/resolveObjection", method = RequestMethod.POST)
     public ResponseEntity<?> resolveRaisedObjection(@RequestBody List<ObjectionVO> objectionVOS) {
-        List<ObjectionVO> objection;
+        List<ObjectionVO> objectionList = new ArrayList<>();;
         try {
-            objection = objectionService.resolveObjection(objectionVOS);
+            for (ObjectionVO objection : objectionVOS) {
+                ObjectionVO objectionVO = objectionService.resolveObjection(objection);
+                objectionList.add(objectionVO);
+            }
         } catch (Exception ex) {
             String res = ex.getMessage();
             return new ResponseEntity<String>(res, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<List<ObjectionVO>>(objection, HttpStatus.OK);
+        return new ResponseEntity<List<ObjectionVO>>(objectionList, HttpStatus.OK);
     }
 
     @GetMapping("/studentObjections")
