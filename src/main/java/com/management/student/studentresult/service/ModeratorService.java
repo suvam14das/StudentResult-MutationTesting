@@ -42,7 +42,7 @@ public class ModeratorService {
 	@Autowired
 	private MarksRepository marksRepository;
 
-	public String marksBulkUpload(MultipartFile fileMarksUpl, String modExitId) throws Exception {
+	public String marksBulkUpload(MultipartFile fileMarksUpl, String modExtId) throws Exception {
 		// TODO Auto-generated method stub
 		String response = "";
 		XSSFWorkbook workbook = null;
@@ -50,7 +50,7 @@ public class ModeratorService {
 		workbook = new XSSFWorkbook(stream);
 		XSSFSheet sheet = workbook.getSheetAt(0);
 		Iterator<Row> rowItr = sheet.iterator();
-		User moderator = userRepository.findByExtId(modExitId);
+		User moderator = userRepository.findByExtId(modExtId);
 		while (rowItr.hasNext()) {
 			Row row = rowItr.next();
 			if (row.getRowNum() == 0)
@@ -89,22 +89,23 @@ public class ModeratorService {
 		return subjectList;
 	}
 
-	public String marksSingleUpload(MarksVO marksVO, String modExitId) throws Exception {
+	public String marksSingleUpload(MarksVO marksVO, String modExtId) throws Exception {
 		// TODO Auto-generated method stub
 		boolean checkExistence = findExistence(marksVO.getRollNo(), marksVO.getSubjectCode(), false);
 		if (checkExistence) {
 			User student = userRepository.findByExtId(marksVO.getRollNo());
 			Subject subject = subjectRepository.findBySubCode(marksVO.getSubjectCode());
-			User moderator = userRepository.findByExtId(modExitId);
+			User moderator = userRepository.findByExtId(modExtId);
 			Marks marks = new Marks(student, subject, marksVO.getMarksObtained(), marksVO.getTotalMarks(),
 					marksVO.getYear(), marksVO.getTerm(), marksVO.getGrade(), moderator);
 			marksRepository.save(marks);
+			return "Marks Uploaded Successfully";
 		}
-		String response = "Marks Uploaded Successfullly";
-		return response;
+		else return "Marks Upload Failure";
+
 	}
 
-	private boolean findExistence(String rollNo, String subjectCode, boolean updateFlag) throws Exception {
+	public boolean findExistence(String rollNo, String subjectCode, boolean updateFlag) throws Exception {
 		// TODO Auto-generated method stub
 		User student = userRepository.findByExtId(rollNo);
 		Subject subject = subjectRepository.findBySubCode(subjectCode);
