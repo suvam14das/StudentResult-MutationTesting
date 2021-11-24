@@ -2,8 +2,6 @@
 
 In this work, we have performed mutation testing using pitest mutation tool. For writing test cases JUnit 5 has been used.
 
-For testing purpose, pre existing code base given at https://github.com/ArturT/Game-of-Life-in-Java has been used.
-
 Follwing steps needs to be followed to setup the mutation testing using pitest
 
 <h5>POM inclusion to setup project for mutation testing</h5>
