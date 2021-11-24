@@ -1,30 +1,70 @@
 package com.management.student.studentresult.utils.pdfutils;
 
 import com.itextpdf.kernel.color.Color;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.TransparentColor;
+import com.management.student.studentresult.enums.ResultComponentEnum;
+import com.management.student.studentresult.vo.MarksVO;
+import com.management.student.studentresult.vo.UserDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.print.attribute.standard.PagesPerMinute;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.TreeMap;
 
-@SpringBootTest
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 public class ResultPdfBuilderTester {
 
+    @Mock
+    private ResultPdfComponentCreator pdfComponentCreator;
+
+    @Mock
+    private ResultPdfUtils resultPdfUtils;
+
+    @InjectMocks
     private ResultPdfBuilder resultPdfBuilder;
+
     @BeforeEach
     public void init(){
-        resultPdfBuilder = new ResultPdfBuilder();
+        MockitoAnnotations.openMocks(this);
     }
 
+    private MarksVO getMarksVO(){
+        return new MarksVO("MT2020093", "sub01",
+                "subject", 2010, 1, 100,
+                90.0, "A+");
+    }
+    private List<MarksVO> getMarksVOList(){
+        List<MarksVO> marksVOList = new ArrayList<>();
+        marksVOList.add(getMarksVO());
+        marksVOList.add(getMarksVO());
+        marksVOList.add(getMarksVO());
+        return marksVOList;
+    }
+
+    @Test
     public void createDocument(){
         PdfWriter writer = new PdfWriter(new ByteArrayOutputStream());
-        this.resultPdfBuilder.createNewDocument(writer);
+        ResultPdfBuilder builder = this.resultPdfBuilder.createNewDocument(writer);
+        Assertions.assertNotNull(builder);
     }
 
     @Test
@@ -47,20 +87,89 @@ public class ResultPdfBuilderTester {
         Assertions.assertEquals(message, ((Text)(footer.getChildren().get(0))).getText());
     }
 
+    public void buildDocumentTest(){
+        PdfWriter writer = new PdfWriter(new ByteArrayOutputStream());
+        Document document = this.resultPdfBuilder.createNewDocument(writer).build();
+        Assertions.assertNotNull(document);
+    }
+
+    private void mockForResultPdfCreation(){
+        Mockito.when(this.pdfComponentCreator
+                .createSectionHeader(anyString()))
+                .thenReturn(new Paragraph());
+        Mockito.when(this.pdfComponentCreator.createMarksDetail(any(TreeMap.class)))
+                .thenReturn(new Table(new float[]{10, 10}));
+        Mockito.when(resultPdfUtils.createMarksDetails(any(List.class)))
+                .thenReturn(new TreeMap<Integer, TreeMap<Integer, List<MarksVO>>>());
+        Mockito.when(resultPdfUtils.createBasicDetails(any(UserDetails.class)))
+                .thenReturn(new LinkedHashMap<ResultComponentEnum, String>());
+        Mockito.when(pdfComponentCreator.createBasicDetailInfo(any(LinkedHashMap.class)))
+                .thenReturn(new Table(new float[]{10, 10}));
+    }
+
+
+    @Test
+    public void addMarksDetails(){
+        mockForResultPdfCreation();
+        PdfWriter writer = new PdfWriter(new ByteArrayOutputStream());
+        ResultPdfBuilder resultPdfBuilderIntermediate = this.resultPdfBuilder.createNewDocument(writer)
+                .addMarksDetails(getMarksVOList());
+        Assertions.assertNotNull(resultPdfBuilderIntermediate);
+        Document document = resultPdfBuilderIntermediate.build();
+        Assertions.assertNotNull(document);
+
+    }
+
+    @Test
     public void addHeaderTest(){
-        String message = "This is a custom header";
-        this.resultPdfBuilder.addHeader(message, 2, 3);
-        Document document = this.resultPdfBuilder.getDocument();
-        //how to test needs to discuss
+        mockForResultPdfCreation();
+        PdfWriter writer = new PdfWriter(new ByteArrayOutputStream());
+        ResultPdfBuilder resultPdfBuilderIntermediate = this.resultPdfBuilder.createNewDocument(writer)
+                .addMarksDetails(getMarksVOList())
+                .addHeader("header");
+        Assertions.assertNotNull(resultPdfBuilderIntermediate);
+        Document document = resultPdfBuilderIntermediate.build();
+        Assertions.assertNotNull(document);
+
+        resultPdfBuilderIntermediate = this.resultPdfBuilder.createNewDocument(writer)
+                .addMarksDetails(getMarksVOList())
+                .addHeader("header", 1);
+        Assertions.assertNotNull(resultPdfBuilderIntermediate);
+        document = resultPdfBuilderIntermediate.build();
+        Assertions.assertNotNull(document);
     }
 
+    @Test
     public void addFooterTest(){
-        String message = "This is a custom header";
-        this.resultPdfBuilder.addHeader(message, 2, 3);
-        Document document = this.resultPdfBuilder.getDocument();
-        //how to test needs to discuss
+        mockForResultPdfCreation();
+        PdfWriter writer = new PdfWriter(new ByteArrayOutputStream());
+        ResultPdfBuilder resultPdfBuilderIntermediate = this.resultPdfBuilder.createNewDocument(writer)
+                .addMarksDetails(getMarksVOList())
+                .addFooter("Footer");
+        Assertions.assertNotNull(resultPdfBuilderIntermediate);
+        Document document = resultPdfBuilderIntermediate.build();
+        Assertions.assertNotNull(document);
+
+        resultPdfBuilderIntermediate = this.resultPdfBuilder.createNewDocument(writer)
+                .addMarksDetails(getMarksVOList())
+                .addFooter("Footer", 1);
+        Assertions.assertNotNull(resultPdfBuilderIntermediate);
+        document = resultPdfBuilderIntermediate.build();
+        Assertions.assertNotNull(document);
     }
 
-    //for other 2 methods not testable
+    @Test
+    public void addBasicInfoBlockTest(){
+        mockForResultPdfCreation();
+        UserDetails userDetails = new UserDetails("Aditya Saha", "MT2020093", null, "address", "9009009009",
+                "sample@gmail.com", "password", -1);
+        PdfWriter writer = new PdfWriter(new ByteArrayOutputStream());
+        ResultPdfBuilder resultPdfBuilderIntermediate = this.resultPdfBuilder.createNewDocument(writer)
+                .addBasicInfoBlock(userDetails);
+        Assertions.assertNotNull(resultPdfBuilderIntermediate);
+        Document document = resultPdfBuilderIntermediate.build();
+        Assertions.assertNotNull(document);
+
+    }
 
 }
