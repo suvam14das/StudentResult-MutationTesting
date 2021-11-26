@@ -1,4 +1,4 @@
-package com.management.student.studentresult;
+package com.management.student.studentresult.service;
 
 import com.management.student.studentresult.dao.Marks;
 import com.management.student.studentresult.dao.Objection;
