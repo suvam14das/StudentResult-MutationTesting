@@ -57,24 +57,5 @@ public class ActionServiceTest {
         Assertions.assertEquals("SAMPLE_UPDATE", savedAction.getName());
     }
 
-    /**
-     //This test cannot be executed because no injection of roleService in original code
-    @Test
-    public void getActionsByRoleTest(){
-        Optional<Role> optionalRole = Optional.of(new Role("student", null, null));
-        Mockito.when(roleRepository.findByName(anyString())).thenReturn(optionalRole);
-        Mockito.when(roleActionRepository.findByRoleAndStatus(any(Role.class), anyString())).thenReturn(
-                Stream.of("HOME","VIEW_OBJECTION","RAISE_OBJECTION", "VIEW")
-                        .map(actionName -> new Action(actionName))
-                        .collect(Collectors.toList())
-        );
-        List<Action> actionList = this.actionService.getActionsByRole("student");
-        List<String> actionNameList = actionList.stream().map(action -> action.getName()).collect(Collectors.toList());
-        List<String> gtActionName = Stream.of("HOME","VIEW_OBJECTION","RAISE_OBJECTION", "VIEW").collect(Collectors.toList());
-        Assertions.assertTrue(actionNameList.containsAll(gtActionName));
-    }
-    **/
-
-
 }
 
